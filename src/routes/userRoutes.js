@@ -26,5 +26,4 @@ router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 router.put('/users/:id/toggle-status', deleteUser); 
 
-
 module.exports = router;

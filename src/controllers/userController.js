@@ -16,27 +16,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const syncDatabase = async () => {
-        try {
-            await User.sync(); // Sync the User model
-            console.log('User table synced successfully');
-        } catch (err) {
-            return errorResponse(res,err.message,500, 'Error syncing User table:');
-        }
-    };
-    
-    const startServer = async () => {
-        try {
-            await syncDatabase(); // Sync before starting the server
-            app.listen(PORT, () => {
-                console.log(`Server is running on http://localhost:${PORT}`); 
-            });
-        } catch (err) {
-            console.error('Unable to connect to the database:', err);
-        }
-    };
-    
-    startServer();
+
     try {
         const { email, password } = req.body;
         const { token, username, status } = await UserService.login(email, password);
@@ -126,18 +106,17 @@ exports.deleteUser = async (req, res) => {
     } catch (err) {
         return errorResponse(res,err.message,500, 'Error deleting user')
     }
-
-// exports.deleteUser = async (req, res) => {
-//     try {
-//         const user = await UserService.deleteUser(req.params.id);
-//         return successResponse(res,user,message=  'User status changed to Deleted');
-//         // res.status(200).json({ message: 'User status changed to Deleted', user });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Error changing user status', error: error.message });
-//     }
-// };
-
-
-
-
+}
+exports.deleteUser = async (req, res) => {
+    try {
+        const user = await UserService.deleteUser(req.params.id);
+        return successResponse(res,user,message=  'User status changed to Deleted');
+        // res.status(200).json({ message: 'User status changed to Deleted', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Error changing user status', error: error.message });
+    }
 };
+
+
+
+

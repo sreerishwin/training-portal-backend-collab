@@ -7,7 +7,8 @@ const {create_assessment,
     assessmentByCreator,
     latestAssessment,
     trainerPerformance,
-    completedAssessments,
+    assessmentByTrainer,
+    // completedAssessments,
     showById,
     updateAssessment,
     removeAssessment} = require('../controllers/assessmentController');
@@ -31,9 +32,9 @@ router.get("/performance/:trainerId", trainerPerformance)
 
 // router.get('/active',completedAssessments);
 
+router.get('/:trainerId',assessmentByTrainer);
 
 router.get('/:id',showById);
-
 
 router.put('/:id',updateAssessment);
 

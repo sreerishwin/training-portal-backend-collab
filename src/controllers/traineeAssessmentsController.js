@@ -79,6 +79,7 @@ const update_tAssessment = async(req,res)=>{
         return errorResponse(res,err.message,500,"TraineeAssessment not found")
     }
 }
+
 const remove_tAssessment = async(req,res)=>{
     try{
         await tAssessmentService.remove_tAssessment(req.params.id);

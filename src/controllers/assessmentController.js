@@ -16,16 +16,27 @@ const create_assessment = async (req, res) => {
 }
 const completed_assessment = async(req,res)=> {
     try{
+        
         const fetchedassessments = await assessmentService.getAssessmentByTrainerId(req.params.trainerId)
+        if (!fetchedassessments || fetchedassessments.length === 0) {
+            return errorResponse(res, "No assessments found for the given trainer", 404);
+        }
         const taFetchedAssessments = await Promise.all(fetchedassessments.map(async (assessment) => {
             const traineeAssessments = await assessmentService.getTAwithAssessmentId(assessment.id);
             const completed = await assessmentService.getCompletedTA();
-            const perc = ((completed.length/traineeAssessments.length)*100)
+            console.log('cccccccccccccccccccccccccccccccccccccccccccccccccccc',completed)
+            const perc = (traineeAssessments.length > 0) 
+            ? ((completed.length / traineeAssessments.length) * 100) 
+            : 0; 
+            return {
+                completed,
+                percentage:perc
+            }
         }));
-        return successResponse(res,{completed : taFetchedAssessments,percentage : perc})
+        return successResponse(res,{completed : taFetchedAssessments})
         // res.status(200).json({completed : taFetchedAssessments});
     }catch(err){
-        return errorResponse(res,err.message,500,"Assessment not found")
+        return errorResponse(res,err.message,500)
     }
 }
 const trainer_assessment_count = async(req,res)=> {
@@ -75,6 +86,16 @@ const latestAssessment = async(req,res) =>{
         return errorResponse(res,err.message,500,"Assessment not found")
     }
 }
+const assessmentByTrainer = async(req,res) =>{
+    try{
+        const fetchedAssessments = await assessmentService.getAssessmentByTrainerId(req.params.trainerId);
+        const count = await fetchedAssessments.length
+        return successResponse(res,{count : count})
+    }catch(err){
+        return errorResponse(res,err.message,500)
+    }
+}
+
 const trainerPerformance = async (req, res) => {
     try {
         const trainerId = req.params.trainerId;
@@ -87,6 +108,7 @@ const trainerPerformance = async (req, res) => {
                 "greaterThan60": 0,
             };
             const traineeAssessments = await assessmentService.getTAwithAssessmentId(assessment.id)
+            console.log('----------------------------------------------------------------',traineeAssessments);
             traineeAssessments.forEach(traineeAssessment => {
                 if (traineeAssessment.performance_score > 90) {
                     perf.greaterThan90++;
@@ -116,6 +138,7 @@ const trainerPerformance = async (req, res) => {
                     label: "Greater than 60"
                 }
             ]
+            console.log('___________________________________',t)
             return { id: assessment.id, title: assessment.assessment_name, createdBy:assessment.created_by, description: assessment.description, perf: t};
         }));
         return successResponse(res,perf)
@@ -188,6 +211,7 @@ module.exports = {
     assessmentByCreator,
     latestAssessment,
     trainerPerformance,
+    assessmentByTrainer,
     // completedAssessments,
     showById,
     updateAssessment,
