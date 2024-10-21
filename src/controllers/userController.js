@@ -7,11 +7,11 @@ exports.register = async (req, res) => {
     try {
         const { username, email, password, confirmPassword } = req.body;
         const user = await UserService.register(username, email, password, confirmPassword);
-        return successResponse(res,{ userId: user.id })
+        return successResponse(res,{ userId: user.id }, "User added sucessfully")
         // res.status(201).json({ message: 'User created', userId: user.id });
     } catch (error) {
-        console.log(err)
-        return errorResponse(res,err.message,500, 'Error registering user');
+        console.log(error)
+        return errorResponse(res, error.message, 500, 'Error registering user');
     }
 };
 
@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
         return successResponse(res,{ token, email, password, username, status })
         // res.json({ token, email, password, username, status });
     } catch (err) {
-        return errorResponse(res,err.message,500);
+        return errorResponse(res,err.message,401);
         // res.status(401).json({ message: error.message });
     }
 

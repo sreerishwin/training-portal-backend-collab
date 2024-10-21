@@ -11,14 +11,20 @@ class UserService {
     if (password !== confirmPassword) {
       throw new Error('Passwords do not match');
     }
+    
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password: hashedPassword });
 
-    // Send a welcome email after successful registration
-    await EmailService.sendWelcomeEmail(email, username);
+    try {
+        const user = await User.create({ username, email, password: hashedPassword });
 
-    return user;
+        // Send a welcome email after successful registration
+        await EmailService.sendWelcomeEmail(email, username);
+    
+        return user;
+    } catch(error) {
+        throw new Error('Username or Email already exist')
+    }
   }
     static async login(email, password) {
         const user = await User.findOne({ where: { email } });
