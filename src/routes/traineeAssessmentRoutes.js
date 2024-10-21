@@ -1,128 +1,27 @@
 const express = require('express');
-const router = express.Router();
-const { Op } = require('sequelize');
-const t_assessments = require('../models/traineeAssessment');
-const Trainer = require('../models/trainer');
 // const authenticateToken = require('../middlewares/auth')
+const {create_tAssessment,
+    show_tAssessments_count,
+    show_tAssessments,
+    statistics,
+    show_tAssessment_byId,
+    update_tAssessment,
+    remove_tAssessment } = require('../controllers/traineeAssessmentsController')
 
-router.post('/',async (req, res) => {
-    try {
-        const t_assessment = await t_assessments.create(req.body);
-        res.status(201).json(t_assessment);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+const router = express.Router();
 
-router.get('/count',async(req,res)=> {
-    try{
-        const t_assessmentCount = await t_assessments.count();
-        res.status(200).json({count:t_assessmentCount});
-    }catch(err){
-        res.status(500).json({error:err.message});
-    }
-});
+router.post('/',create_tAssessment);
 
-router.get('/',async(req,res) =>{
-    try{
-        const t_assessment = await t_assessments.findAll();
-        res.status(201).json(t_assessment);
-    } catch(err){
-        res.status(500).json({error:err.message});
-    }
-});
+router.get('/count',show_tAssessments_count);
 
+router.get('/',show_tAssessments);
 
-router.get('/score',async(req,res)=>{
-    try{
-        const scores = await t_assessments.findAll({
-            where:{
-                performance_score:{
-                    [Op.or]:[
-                        {[Op.gt]:90},
-                        {[Op.gt]:80},
-                        {[Op.gt]:75},
-                        {[Op.gt]:30},
+router.get('/statistics',statistics);
 
-                    ]
-                }
-            },
-            attributes:['title','performance_score']
-        });
-        res.status(200).json(scores);
+router.get('/:id',show_tAssessment_byId);
 
-    }catch(err){
-        res.status(500).json({error:err.message});
-    }
-});
+router.put('/:id',update_tAssessment);
 
-
-
-
-
-router.get('/statistics', async(req,res) =>{
-    try{
-        const completedAssessments = await t_assessments.findAll({
-            where:{
-                status:'completed'
-            },
-        });
-        const pendingAssessments = await t_assessments.findAll({
-            where:{
-                status:'hold'
-            }
-        });
-        const todoAssessments = await t_assessments.findAll({
-            where:{
-                status:'todo'
-            }
-        });
-        const inprogressAssessments = await t_assessments.findAll({
-            where:{
-                status:'in_progress'
-            }
-        });
-        res.status(200).json({ completedCount: completedAssessments.length,
-            pendingCount:pendingAssessments.length,
-            todoCount:todoAssessments.length,
-            inprogressCount:inprogressAssessments.length
-        });
-        // console.log(t_assessment.length);
-    } catch(err){
-        res.status(500).json({error:err.message});
-    }
-});
-
-
-router.get('/:id',async(req,res) =>{
-    try{
-        const t_assessment = await t_assessments.findByPk(req.params.id);
-        if(t_assessment) res.status(201).json(t_assessment);
-        else res.status(404).json({error:'Trainee assessment not found.'});
-    }catch(err){
-        res.status(500).json({eror:err.message});
-    }
-});
-
-
-router.put('/:id',async(req,res)=>{
-    try{
-        const t_assessment = await t_assessments.update(req.body,{where :{id:req.params.id}});
-        res.json(t_assessment);
-    }catch(err){
-        req.status(500).json({error:err.message});
-    }
-});
-
-
-router.delete('/:id',async(req,res)=>{
-    try{
-        await t_assessments.destroy({where:{id:req.params.id}});
-        res.json({message:'Trainee Assesssment deleted'});
-    }catch(err){
-        res.status(500).json({ error: err.message });       
-    }
-});
-
+router.delete('/:id',remove_tAssessment);
 
 module.exports = router;

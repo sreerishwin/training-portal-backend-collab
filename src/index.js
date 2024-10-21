@@ -1,66 +1,53 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-
-
-const sequelize = require('./config/database'); 
-
 // models
-const User = require('./models/User'); 
-const Trainee = require('./models/trainee'); 
-const Trainer = require('./models/trainer'); 
-const assessment = require('./models/traineeAssessment'); 
-const role = require('./models/roles'); 
+const User = require('./models/User');
 
+require ('dotenv').config();
+const express = require('express');
+const sequelize = require('./config/database'); 
+const cors = require('cors');
+const app = express();
 
 //routes
 const userRoutes = require('./routes/userRoutes');
-const traineeRoutes = require('./routes/trainee');
-const trainerRoutes = require('./routes/trainer');
-const rolesRoutes = require('./routes/roles');
+const traineeRoutes = require('./routes/traineeRoutes');
+const trainerRoutes = require('./routes/trainerRoutes');
+const roleRoutes = require('./routes/roleRoutes');
 const t_assessmentRoutes = require('./routes/traineeAssessmentRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
 
+sequelize.sync()
+app.use(cors());
+app.use(express.json());
 
-
-
-dotenv.config();
-
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(cors());
-
-app.use('/api/users', userRoutes); // Mount user routes
+//NITHISH
+app.use('/api/auth', userRoutes);
 app.use('/api/trainees',traineeRoutes);
 app.use('/api/trainers',trainerRoutes);
-app.use('/api/roles',rolesRoutes);
+app.use('/api/roles',roleRoutes);
 app.use('/api/trainee_assessments',t_assessmentRoutes);
 app.use('/api/assessments',assessmentRoutes);
 
 
 
 
+
+const syncDatabase = async () => {
+    try {
+        await User.sync(); // Sync the User model
+        console.log('User table synced successfully');
+    } catch (error) {
+        console.error('Error syncing User table:', error);
+    }
+};
+
 const startServer = async () => {
     try {
-        await sequelize.authenticate();
-        console.log('Database connection established successfully.');
-
-        // Sync models
-        // await User.sync(); 
-        // await Trainer.sync({force: true});
-        // await Trainee.sync();
-        // await assessment.sync({force: true});
-        // await role.sync({force: true});
-        // await trainee_assessment.sync({force: true});
-
-        await sequelize.sync({ alter: true })
-
-
-        app.listen(PORT, () => {const cors = require('cors');
-
-            console.log(`Server is running on http://localhost:${PORT}`);
+        // await assessments.sync({alter:true});
+        await syncDatabase(); // Sync before starting the server
+        app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`); 
         });
     } catch (error) {
         console.error('Unable to connect to the database:', error);

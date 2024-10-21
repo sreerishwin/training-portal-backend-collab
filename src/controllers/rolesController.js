@@ -1,56 +1,51 @@
-const express = require('express');
-const router = express.Router();
 const Roles = require('../models/roles');
-const authenticateToken = require('../middlewares/authMiddleware')
+const rolesService = require('../services/rolesService')
 
-
-router.post('/', async (req, res) => {
+const createRole = async (req, res) => {
     try {
-        const roles = await Roles.create(req.body);
+        const roles = await rolesService.createRoles(req.body);
         res.status(201).json(roles);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
-
-router.get('/',async(req,res) =>{
+}
+const showRoles = async(req,res) =>{
     try{
-        const roles = await Roles.findAll();
+        const roles = await rolesService.getallRoles();
         res.status(201).json(roles);
     } catch(err){
         res.status(500).json({error:err.message});
     }
-});
-
-router.get('/:id',async(req,res) =>{
+}
+const showRoleById = async(req,res) =>{
     try{
-        const roles = await Roles.findByPk(req.params.id);
+        const roles = await rolesService.getRoleById(req.params.id);
         if(roles) res.status(201).json(roles);
         else res.status(404).json({error:'Role not found.'});
     }catch(err){
         res.status(500).json({eror:err.message});
     }
-});
-
-
-
-router.put('/:id',async(req,res)=>{
+}
+const updateRole = async(req,res)=>{
     try{
-        const roles = await Roles.update(req.body,{where :{id:req.params.id}});
+        const roles = await rolesService.updateRole(req.params.id,req.body);
         res.json(roles);
     }catch(err){
         req.status(500).json({error:err.message});
     }
-});
-
-
-router.delete('/:id',async(req,res)=>{
+}
+const removeRole = async(req,res)=>{
     try{
-        await Roles.destroy({where:{id:req.params.id}});
+        await rolesService.removeRole(req.params.id);
         res.json({message:'Role deleted'});
     }catch(err){
         res.status(500).json({ error: err.message });       
     }
-});
-
-module.exports = router;
+}
+module.exports = {
+    createRole,
+    showRoles,
+    showRoleById,
+    updateRole,
+    removeRole
+}

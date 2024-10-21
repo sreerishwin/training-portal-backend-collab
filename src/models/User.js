@@ -39,14 +39,14 @@ const User = sequelize.define('User', {
 });
 
 // Sync the model with the database
-const syncDatabase = async () => {
-    try {
-        await User.sync({ alter: true }); // This will update the existing table
-        console.log('User table synced successfully');
-    } catch (error) {
-        console.error('Error syncing User table:', error);
-    }
-};
-syncDatabase();
+// const syncDatabase = async () => {
+//     try {
+//         await User.sync({ alter: true }); // This will update the existing table
+//         console.log('User table synced successfully');
+//     } catch (error) {
+//         console.error('Error syncing User table:', error);
+//     }
+// };
+// syncDatabase();
 
 module.exports = User;
