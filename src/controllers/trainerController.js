@@ -2,15 +2,27 @@ const express = require('express');
 const Trainer = require('../models/trainer');
 const trainerService = require('../services/trainerService');
 const assessmentService = require('../services/assessmentService')
+const User = require('../models/User');
 const { successResponse, errorResponse, noResponse } = require('../functions/response');
+const UserService = require('../services/UserService');
 
 const create_trainer = async(req,res) => {
     try {
-        const trainer = await trainerService.createTrainer(req.body);
-        return successResponse(res,trainer);
+        const mailId = req.body.email
+        const user = await User.findOne({
+            where:{
+                email : mailId
+            }
+        })
+        if (user) {
+            const trainer = await trainerService.createTrainer({ ...req.body, userId: user.id });
+            return successResponse(res, trainer)
+        }
+        return errorResponse(res,"Email is not registered.",400);
         // res.status(201).json(trainer);
     } catch (err) {
-        return errorResponse(res,err.message,500,"Trainer not found")
+        console.log(err)
+        return errorResponse(res,err.message,500,"Couldn't create trainer")
     }
 }
 const show_trainers_by_count = async(req,res)=> {

@@ -1,12 +1,21 @@
 // src/controllers/authController.js
 
 const UserService = require('../services/UserService');
+const TraineeService = require('../services/traineeService')
+const TrainerService = require('../services/trainerService')
 const{successResponse , noResponse, errorResponse} = require('../functions/response');
 
 exports.register = async (req, res) => {
     try {
-        const { username, email, password, confirmPassword } = req.body;
+        const { username, email, password, confirmPassword, role } = req.body;
         const user = await UserService.register(username, email, password, confirmPassword);
+
+        if (role === 'trainer') {
+            await TrainerService.createTrainee({...req.body, userId: user.id})
+        }
+        else if (role ==='trainee'){
+            await TraineeService.createTrainer({...req.body, userId: user.id})
+        }
         return successResponse(res,{ userId: user.id }, "User added sucessfully")
         // res.status(201).json({ message: 'User created', userId: user.id });
     } catch (error) {

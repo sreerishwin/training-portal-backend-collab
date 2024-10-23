@@ -44,7 +44,7 @@ const getAssessmentById = async (assessmentId) => {
   return await Assessment.findByPk(assessmentId);
 };
 const updateAssessment = async (assessmentId, updateData) => {
-  return await Roles.update(updateData, {
+  return await Assessment.update(updateData, {
     where: {
       id: assessmentId,
     },

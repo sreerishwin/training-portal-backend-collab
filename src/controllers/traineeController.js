@@ -2,7 +2,7 @@ const { Op } = require("sequelize");
 const Trainee = require("../models/trainee");
 const t_assessment = require("../models/traineeAssessment");
 const Assessment = require("../models/assessments");
-const Trainer = require("../models/trainer");
+const User = require("../models/User");
 const traineeassessmentService = require("../services/traineeassessmentService");
 const traineeService = require("../services/traineeService");
 const trainerService = require("../services/trainerService");
@@ -15,9 +15,20 @@ const {
 
 const create_trainee = async (req, res) => {
   try {
-    const trainee = await traineeService.createTrainee(req.body);
-    // res.status(201).json(trainee);
-    return successResponse(res, trainee);
+    const mailId = req.body.email
+    const user = await User.findOne({
+      where:{
+        email:mailId
+      }
+    })
+    if (user) {
+      const trainee = await traineeService.createTrainee({...req.body,userId : user.id});
+      return successResponse(res, trainee);
+    }
+    else {
+      return errorResponse(res,"Email doesnt match.");
+
+    }
   } catch (err) {
     return errorResponse(res, err.message, 500, "Trainer not found");
   }

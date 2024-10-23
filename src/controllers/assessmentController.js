@@ -10,11 +10,15 @@ const {
 
 const create_assessment = async (req, res) => {
     try {
-        const assessment = await assessmentService.createAssessments({ ...req.body, assessment_name: req.body.title });
-        const traineeAssessment = await assessmentService.createTA({ ...req.body, assessment_id: assessment.id, status: req.body.traineeStatus })
-        return successResponse(res,assessment)
+        const assessment = await assessmentService.createAssessments({ ...req.body, status:"active", assessment_name: req.body.title });
+        const trainees = req.body.trainees;
+        const traineeIds = await Promise.all(trainees.map(async(traineeId) => {
+          const traineeAssessment = await assessmentService.createTA({ ...req.body, assessment_id: assessment.id, status:"todo", performance_score:0 ,trainee_id:traineeId})
+          return traineeAssessment;
+        }))
+        return successResponse(res,{assessment,traineeIds})
     } catch (err) {
-        return errorResponse(res,"assessment not found",404,"no assessment found")
+        return errorResponse(res,err,404)
         // res.status(500).json({ error: err.message });
     }
 }
@@ -34,7 +38,6 @@ const completed_assessment = async(req,res)=> {
             ? ((completed.length / traineeAssessments.length) * 100) : 0; 
             return { percentage:perc }
         }));
-        console.log("Training Fetched assessments_________________________--", taFetchedAssessments)
         return successResponse(res,{completed : taFetchedAssessments})
         // res.status(200).json({completed : taFetchedAssessments});
     }catch(err){
@@ -202,7 +205,7 @@ const showById = async (req, res) => {
 };
 const updateAssessment = async (req, res) => {
   try {
-    const assessment = await assessmentService.updateAssessment({
+    const assessment = await assessmentService.updateAssessment(req.params.id,{
       ...req.body,
       created_by: req.body.creator_id,
     });

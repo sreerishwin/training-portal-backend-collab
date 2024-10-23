@@ -1,7 +1,12 @@
 const Trainer = require('../models/trainer')
 
-const createTrainer = async(trainerData) =>{
-    return await Trainer.create(trainerData);
+const createTrainer = async(trainerData) => {
+    try {
+        return await Trainer.create(trainerData);
+    }catch(err) {
+        console.log("Create Trainer Service error", err);
+        throw new Error("Couldn't create User");
+    }
 }
 const getallTrainer = async() =>{
     return await Trainer.findAll();

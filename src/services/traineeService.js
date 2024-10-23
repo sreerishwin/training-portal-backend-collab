@@ -2,7 +2,14 @@ const { Op } = require("sequelize");
 const Trainee = require("../models/trainee");
 
 const createTrainee = async (data) => {
-  return await Trainee.create(data);
+  try {
+    
+    return await Trainee.create(data);
+  }catch(error) {
+    console.log(error);
+    throw new Error("Couldn't Create User");
+  }
+  
 };
 const getallTrainees = async () => {
   return await Trainee.findAll();
@@ -20,7 +27,6 @@ const getTraineeByDate = async () => {
       },
     },
   });
-  console.log("Count_____________________________________", temp.length);
   return await Trainee.findAll({
     where: {
       joinedDate: {

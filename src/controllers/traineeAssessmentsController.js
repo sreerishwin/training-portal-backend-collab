@@ -4,7 +4,8 @@ const tAssessmentService = require('../services/traineeassessmentService')
 
 const create_tAssessment = async (req, res) => {
     try {
-        const t_assessment = await tAssessmentService.create_tAssessment(req.body);
+        // const { assessment_name, description, duration, asessment_type, created_by, due_date, trainees } = req.body;
+        const t_assessment = await tAssessmentService.create_tAssessment({...req.body, status: 'todo' });
         // res.status(201).json(t_assessment);
         return successResponse(res,t_assessment);
     } catch (err) {
